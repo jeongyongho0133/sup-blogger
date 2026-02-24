@@ -1,0 +1,9 @@
+# Firebase service account key
+serviceAccountKey.json
+
+# Node.js
+node_modules
+npm-debug.log
+
+# Firebase
+.firebase
