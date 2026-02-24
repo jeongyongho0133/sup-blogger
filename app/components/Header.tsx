@@ -17,7 +17,7 @@ export default function Header() {
           <Link href="/login" className="text-gray-800 font-semibold hover:text-blue-500 px-4 py-2">
             로그인
           </Link>
-          <Link href="/signup" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          <Link href="/" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
             회원가입
           </Link>
         </div>

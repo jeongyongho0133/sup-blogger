@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import Link from 'next/link';
 
 export default function AgentRegistration() {
   const [name, setName] = useState('');
@@ -11,6 +12,7 @@ export default function AgentRegistration() {
   const [agentLicenseNumber, setAgentLicenseNumber] = useState('');
   const [brokerageRegistrationNumber, setBrokerageRegistrationNumber] = useState('');
   const [businessRegistrationNumber, setBusinessRegistrationNumber] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -21,6 +23,11 @@ export default function AgentRegistration() {
 
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError('이용약관 및 개인정보처리방침에 동의해야 합니다.');
       return;
     }
 
@@ -141,8 +148,28 @@ export default function AgentRegistration() {
           required 
         />
       </div>
+
+      <div className="flex items-center">
+        <input
+          id="terms-agent"
+          name="terms-agent"
+          type="checkbox"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+        />
+        <label htmlFor="terms-agent" className="ml-2 block text-sm text-gray-900">
+          <Link href="/terms/agent-service" className="underline" target="_blank">이용약관</Link> 및 <Link href="/terms/agent-privacy" className="underline" target="_blank">개인정보처리방침</Link>에 동의합니다.
+        </label>
+      </div>
       
-      <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">가입 신청하기</button>
+      <button 
+        type="submit" 
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400"
+        disabled={!agreedToTerms}
+      >
+        가입 신청하기
+      </button>
     </form>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import Link from 'next/link';
 
 export default function OwnerRegistration() {
   const [name, setName] = useState('');
@@ -8,6 +9,7 @@ export default function OwnerRegistration() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -18,6 +20,11 @@ export default function OwnerRegistration() {
 
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError('이용약관 및 개인정보처리방침에 동의해야 합니다.');
       return;
     }
 
@@ -98,7 +105,27 @@ export default function OwnerRegistration() {
         />
       </div>
       
-      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">가입하기</button>
+      <div className="flex items-center">
+        <input
+          id="terms-owner"
+          name="terms-owner"
+          type="checkbox"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+        />
+        <label htmlFor="terms-owner" className="ml-2 block text-sm text-gray-900">
+          <Link href="/terms/owner-service" className="underline" target="_blank">이용약관</Link> 및 <Link href="/terms/owner-privacy" className="underline" target="_blank">개인정보처리방침</Link>에 동의합니다.
+        </label>
+      </div>
+
+      <button 
+        type="submit" 
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400"
+        disabled={!agreedToTerms}
+      >
+        가입하기
+      </button>
     </form>
   );
 }
