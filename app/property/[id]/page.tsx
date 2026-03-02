@@ -1,14 +1,15 @@
-import { adminDb } from '@/lib/firebase/server';
+
+import { serverFirestore } from '@/lib/firebase/server';
 import PropertyImageCarousel from '@/app/components/PropertyImageCarousel';
 import { Property } from '@/types';
 import { formatPrice } from '@/lib/formatters';
-import { AgentMember } from '@/app/models/user'; // AgentMember 타입 임포트
-import Image from 'next/image'; // Next.js 이미지 컴포넌트 사용
+import { AgentMember } from '@/app/models/user'; 
+import Image from 'next/image';
 
-// 매물 정보 가져오기
+// Firestore에서 특정 ID의 매물 정보를 가져오는 함수
 async function getProperty(id: string): Promise<Property | null> {
   try {
-    const docRef = adminDb.collection('properties').doc(id);
+    const docRef = serverFirestore.collection('properties').doc(id);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
@@ -18,6 +19,7 @@ async function getProperty(id: string): Promise<Property | null> {
       const data = docSnap.data();
       if (!data) return null;
       
+      // Firestore 타임스탬프를 JavaScript Date 객체로 변환
       const createdAt = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt._seconds * 1000);
       const updatedAt = data.updatedAt.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt._seconds * 1000);
 
@@ -42,25 +44,23 @@ async function getProperty(id: string): Promise<Property | null> {
         updatedAt: updatedAt,
       };
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching property:", error);
     return null;
   }
 }
 
-// 공인중개사 정보 가져오기
+// Firestore에서 특정 ID의 중개인 정보를 가져오는 함수
 async function getAgent(id: string): Promise<AgentMember | null> {
   if (!id) return null;
   try {
-    const docRef = adminDb.collection('users').doc(id);
+    const docRef = serverFirestore.collection('users').doc(id);
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
       console.log('No such agent document!');
       return null;
     }
-    // Firestore 데이터를 AgentMember 타입으로 변환 (타입 단언 사용)
     return docSnap.data() as AgentMember;
   } catch (error) {
     console.error("Error fetching agent:", error);
@@ -74,24 +74,28 @@ type PageProps = {
   };
 };
 
+// 페이지를 서버 컴포넌트로 변경 (async 사용)
 export default async function PropertyDetailsPage({ params }: PageProps) {
   const property = await getProperty(params.id);
-  // 매물 정보의 agentId를 사용하여 중개사 정보 가져오기
   const agent = property ? await getAgent(property.agentId) : null;
 
   if (!property) {
     return <div>매물을 찾을 수 없습니다.</div>;
   }
 
+  // UI 렌더링 부분은 기존과 유사하게 유지하되, 실제 데이터를 사용합니다.
   return (
     <div className="container mx-auto p-4">
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        {property.images && property.images.length > 0 && (
+        {property.images && property.images.length > 0 ? (
           <PropertyImageCarousel images={property.images} />
+        ) : (
+          <div className="relative h-96 w-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">이미지 없음</span>
+          </div>
         )}
 
         <div className="p-6">
-          {/* ... (매물 정보 UI) ... */}
           <div className="flex justify-between items-start mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">{property.title}</h1>
@@ -108,7 +112,6 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 주요 정보 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-b py-4 my-4">
             <div className="text-center">
               <p className="text-gray-500 text-sm">매물종류</p>
@@ -128,13 +131,12 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* 상세 설명 */}
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">상세 정보</h2>
             <p className="text-gray-700 whitespace-pre-wrap">{property.description}</p>
+
           </div>
 
-          {/* 편의시설 */}
           {property.amenities && property.amenities.length > 0 && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-2">편의시설</h2>
@@ -148,13 +150,12 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
             </div>
           )}
           
-          {/* 담당 공인중개사 정보 표시 */}
           {agent && (
             <div className="mt-8 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">담당 공인중개사</h2>
               <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
                 <Image 
-                  src={agent.profile.profilePictureUrl || '/default-avatar.png'} // 기본 이미지 경로 추가
+                  src={agent.profile.profilePictureUrl || '/default-avatar.png'}
                   alt={`${agent.name} 공인중개사 프로필 사진`}
                   width={80}
                   height={80}

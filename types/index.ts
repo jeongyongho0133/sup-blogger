@@ -2,7 +2,7 @@ export interface Property {
   id: string;
   title: string;
   description: string;
-  propertyType: 'apartment' | 'villa' | 'officetel' | 'house';
+  propertyType: 'apartment' | 'villa' | 'officetel' | 'house' | 'store'; // 'store' 타입을 추가
   transactionType: 'sale' | 'rent';
   price: number;
   deposit?: number;
@@ -20,7 +20,8 @@ export interface Property {
 }
 
 export interface User {
-  id: string;
+  id: string; // Firestore document ID
+  uid: string; // Firebase Auth User ID
   name: string;
   email: string;
   role: 'user' | 'agent' | 'admin';

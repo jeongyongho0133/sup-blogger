@@ -1,46 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../lib/firebase/client';
-import { useAuth } from '../../context/AuthContext';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/'); // Redirect if already logged in
-    }
-  }, [user, loading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/'); // Redirect to home page after successful login
+      // 1. Firebase로 로그인합니다.
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Firebase 사용자로부터 ID 토큰을 가져옵니다.
+      const idToken = await user.getIdToken();
+
+      // 3. NextAuth의 `signIn` 함수에 `idToken`을 전달하여 서버 세션을 생성합니다.
+      const nextAuthResponse = await signIn('credentials', {
+        redirect: false, // 페이지 리디렉션을 막고, 응답 객체를 받습니다.
+        idToken, // ID 토큰을 credentials로 전달
+      });
+
+      if (nextAuthResponse?.error) {
+        // NextAuth 로그인 실패 시 에러를 처리합니다.
+        setError('서버 세션 생성에 실패했습니다: ' + nextAuthResponse.error);
+        return;
+      }
+
+      // 4. 로그인 성공 후 홈페이지로 리디렉션하고, 서버 상태를 새로고침합니다.
+      router.push('/');
+      router.refresh();
+
     } catch (err: any) {
       console.error('Error logging in:', err);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('이메일 또는 비밀번호가 잘못되었습니다.');
-      } else if (err.code === 'auth/invalid-credential') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         setError('이메일 또는 비밀번호가 잘못되었습니다.');
       } else {
         setError('로그인에 실패했습니다. 다시 시도해주세요.');
       }
     }
   };
-
-  if (loading || user) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
-  }
 
   return (
     <div className="container mx-auto p-4 flex justify-center">

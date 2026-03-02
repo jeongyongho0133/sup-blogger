@@ -9,7 +9,11 @@ interface PropertyImageCarouselProps {
 
 export default function PropertyImageCarousel({ images }: PropertyImageCarouselProps) {
   if (!images || images.length === 0) {
-    return <div className="bg-gray-200 h-64 w-full flex items-center justify-center text-gray-500">이미지가 없습니다.</div>;
+    return (
+      <div className="relative h-96 w-full bg-gray-200 flex items-center justify-center text-gray-500">
+        <span>이미지가 없습니다.</span>
+      </div>
+    );
   }
 
   return (
@@ -22,8 +26,13 @@ export default function PropertyImageCarousel({ images }: PropertyImageCarouselP
       className="rounded-lg overflow-hidden shadow-lg"
     >
       {images.map((image, index) => (
-        <div key={index}>
-          <img src={image} alt={`매물 이미지 ${index + 1}`} className="w-full h-auto object-cover" style={{ maxHeight: '500px' }} />
+        // Next.js Image의 fill 속성 대신 일반 img 태그를 사용하여 경고를 해결합니다.
+        <div key={index} className="h-96 w-full"> 
+          <img 
+            src={image} 
+            alt={`매물 이미지 ${index + 1}`} 
+            className="w-full h-full object-cover" // 너비와 높이를 100%로 채우고, 이미지가 잘리도록 설정
+          />
         </div>
       ))}
     </Carousel>

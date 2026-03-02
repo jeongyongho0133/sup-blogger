@@ -1,43 +1,45 @@
-
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import type { FreeOwnerMember } from '@/app/models/user';
 
-export async function POST(req: NextRequest) {
+// 임시 임대인 데이터베이스 역할을 할 Set
+const existingOwners = new Set([
+  'owner@example.com',
+]);
+
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const { name, email, phoneNumber, password } = await request.json();
 
-    // Basic validation
-    const { name, email, phoneNumber, password } = body;
+    // 1. 필수 입력 정보 확인
     if (!name || !email || !phoneNumber || !password) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { message: '필수 입력 정보가 누락되었습니다.' },
+        { status: 400 }
+      );
     }
 
-    // In a real application, you would:
-    // 1. Perform more robust validation (e.g., email format, phone number format, password strength).
-    // 2. Hash the user's password securely using a library like bcrypt.
-    //    const hashedPassword = await bcrypt.hash(password, 10);
-    // 3. Save the new user to your database with the hashed password.
-    // 4. Implement phone number verification (e.g., via SMS OTP).
+    // 2. 이메일 중복 확인
+    if (existingOwners.has(email)) {
+      return NextResponse.json(
+        { message: '이미 가입된 이메일입니다.' },
+        { status: 409 }
+      );
+    }
 
-    console.log('New Owner Registration:', { name, email, phoneNumber }); // Don't log the password!
+    // 3. 데이터베이스에 임대인 정보 저장 (시뮬레이션)
+    console.log(`새로운 임대인 등록: ${name}, ${email}`);
+    existingOwners.add(email); // 임시 데이터베이스에 추가
 
-    // For now, we'll just simulate a successful registration
-    const newUser: Partial<FreeOwnerMember> = {
-      uid: `owner-${Date.now()}`,
-      name,
-      email,
-      phoneNumber,
-      // password: hashedPassword, // Store the hashed password
-      userType: 'owner',
-      membershipType: 'free',
-      agreedToTerms: true, // Assuming this is handled in the form
-      createdAt: new Date(),
-    };
+    // 4. 회원가입 성공 응답
+    return NextResponse.json(
+      { message: `임대인으로 가입하신 것을 환영합니다, ${name}님!` },
+      { status: 201 }
+    );
 
-    return NextResponse.json({ message: 'Owner registered successfully', user: newUser }, { status: 201 });
   } catch (error) {
-    console.error('Registration Error:', error);
-    return NextResponse.json({ message: 'An error occurred during registration' }, { status: 500 });
+    console.error('임대인 가입 API 오류:', error);
+    return NextResponse.json(
+      { message: '서버 내부 오류가 발생했습니다.' },
+      { status: 500 }
+    );
   }
 }

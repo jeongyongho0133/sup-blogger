@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator, initializeFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,17 +13,21 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-
-const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-  useFetchStreams: false,
-});
-
+const db = getFirestore(app);
 const auth = getAuth(app);
 
-if (process.env.NODE_ENV === "development") {
-  connectAuthEmulator(auth, "http://localhost:9099");
-  connectFirestoreEmulator(db, "localhost", 8081);
+if (process.env.NODE_ENV === 'development') {
+  // 전역 변수를 사용하여 연결 상태를 확인합니다.
+  if (!(global as any)._firebaseEmulatorsConnected) {
+    console.log("Connecting to Firebase Emulators for the first time...");
+
+    // Auth 및 Firestore 에뮬레이터에 연결
+    connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+    connectFirestoreEmulator(db, 'localhost', 8081);
+
+    // 연결되었음을 전역 변수에 표시
+    (global as any)._firebaseEmulatorsConnected = true;
+  }
 }
 
-export { app, auth, db };
+export { app, db, auth };

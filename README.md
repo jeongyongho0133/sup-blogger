@@ -1,78 +1,61 @@
-# Real Estate Platform
+# Project RE
 
-This is a comprehensive real estate platform for buying, selling, and renting properties, built with Next.js and Firebase.
+신뢰할 수 있는 부동산 거래의 시작. Project RE가 함께합니다.
 
-## Tech Stack
+## ✨ 주요 기능
 
-*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **Database:** [Firebase Firestore](https://firebase.google.com/docs/firestore)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-*   **i18n:** [react-i18next](https://react.i18next.com/)
+*   **최신 매물 목록:** 구매, 판매 및 임대를 위한 최신 부동산 매물 정보를 제공합니다.
+*   **다국어 지원:** 한국어와 영어 간의 언어 전환 기능을 제공합니다.
+*   **사용자 인증:** Firebase Auth를 통해 안전한 사용자 인증 시스템을 구축했습니다.
+*   **서비스 약관:** `/terms/paid` 및 `/terms/privacy`에서 약관 및 개인정보 처리방침을 확인할 수 있습니다.
 
-## Project Structure
+## 💻 기술 스택
 
-The project uses the Next.js App Router, which enables a clear separation between server and client components.
+*   **프레임워크:** [Next.js](https://nextjs.org/) (App Router)
+*   **언어:** [TypeScript](https://www.typescriptlang.org/)
+*   **데이터베이스:** [Firebase Firestore](https://firebase.google.com/docs/firestore)
+*   **스타일링:** [Tailwind CSS](https://tailwindcss.com/)
+*   **다국어 (i18n):** [react-i18next](https://react.i18next.com/)
 
-*   `app/`: Contains all the routes and pages.
-    *   `layout.tsx`: The root layout of the application. It's a Server Component that wraps all pages.
-    *   `providers.tsx`: A Client Component (`'use client'`) that holds all client-side context providers (e.g., Auth, i18n).
-    *   `page.tsx`: The main page, which is a Server Component responsible for fetching data from the database.
-    *   `components/`: Contains reusable React components.
-        *   `PropertyList.tsx`: A Client Component that receives data as props and handles UI rendering and user interactions.
-    *   `terms/`: Contains legal pages like the Privacy Policy and Paid Services Terms.
-*   `lib/firebase/`: Configuration files for the Firebase SDK.
-    *   `client.ts`: Firebase client configuration for browser-side usage.
-    *   `server.ts`: Firebase Admin SDK configuration for server-side usage (e.g., in Server Components, API routes).
-*   `scripts/`: Contains utility scripts for the project.
-    *   `seed.ts`: A script to populate the Firestore database with initial mock data.
+## 🚀 시작 가이드
 
-## Getting Started
+개발 환경을 설정하고 실행하려면 다음 단계를 따르세요.
 
-Follow these steps to get the development environment up and running.
+### 1. 의존성 설치
 
-### 1. Installation
-
-Install the necessary dependencies using npm:
+npm을 사용하여 필요한 의존성을 설치합니다:
 
 ```bash
 npm install
 ```
 
-### 2. Environment Variables
+### 2. 환경 변수 설정
 
-This project uses Firebase for its backend. You will need to set up a Firebase project and obtain your service account credentials.
+이 프로젝트는 백엔드로 Firebase를 사용합니다. Firebase 프로젝트를 설정하고 서비스 계정 인증 정보를 얻어야 합니다.
 
-1.  Create a `.env.local` file in the root of the project.
-2.  Add your Firebase service account credentials to the file. It should be a base64-encoded JSON string.
+1.  프로젝트 루트에 `.env.local` 파일을 생성합니다.
+2.  Firebase 서비스 계정 인증 정보를 파일에 추가합니다. 이 정보는 base64로 인코딩된 JSON 문자열이어야 합니다.
 
 ```
 FIREBASE_SERVICE_ACCOUNT_BASE64=<YOUR_BASE64_ENCODED_SERVICE_ACCOUNT_KEY>
 ```
 
-### 3. Seed the Database
+### 3. 데이터베이스 시딩
 
-To populate the database with some initial sample data, run the seed script:
+초기 샘플 데이터로 데이터베이스를 채우려면 시드 스크립트를 실행하세요:
 
 ```bash
 npm run db:seed
 ```
 
-This will add a few sample properties to your Firestore `properties` collection.
+이 명령은 Firestore `properties` 컬렉션에 몇 가지 샘플 매물을 추가합니다.
 
-### 4. Run the Development Server
+### 4. 개발 서버 실행
 
-Start the Next.js development server:
+Next.js 개발 서버를 시작합니다:
 
 ```bash
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
-
-## Available Features
-
-*   View a list of the latest available properties.
-*   Switch between English and Korean languages.
-*   User authentication (setup via Firebase Auth).
-*   Terms and Privacy pages available at `/terms/paid` and `/terms/privacy`.
+애플리케이션은 [http://localhost:3000](http://localhost:3000)에서 실행됩니다.

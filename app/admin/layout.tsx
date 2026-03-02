@@ -12,7 +12,7 @@ export default function AdminLayout({
           <Link href="/admin">관리자 패널</Link>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link href="/admin/users" className="block p-2 rounded hover:bg-gray-700">사용자 관리</Link>
+          <Link href="/admin/users" className="block p-2 rounded hover:bg-gray-700">회원 관리</Link>
           <Link href="/admin/listings" className="block p-2 rounded hover:bg-gray-700">매물 관리</Link>
           <Link href="/admin/reports" className="block p-2 rounded hover:bg-gray-700">신고 관리</Link>
         </nav>

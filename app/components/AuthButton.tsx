@@ -2,22 +2,17 @@
 
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { auth } from '../../lib/firebase/client';
-import { signOut } from 'firebase/auth';
+import { signOut } from 'next-auth/react'; // firebase/auth 대신 next-auth/react에서 signOut을 가져옵니다.
 import { useRouter } from 'next/navigation';
 
 export default function AuthButton() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  // next-auth의 signOut 함수를 사용하도록 수정합니다.
+  // 이 함수는 서버 세션과 클라이언트 세션을 모두 올바르게 종료합니다.
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      // Logout successful, redirect to the homepage
-      router.push('/');
-    } catch (err) {
-      console.error('Logout failed', err);
-    }
+    await signOut({ callbackUrl: '/' }); // 로그아웃 후 홈페이지로 리디렉션합니다.
   };
 
   if (loading) {

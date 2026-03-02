@@ -2,88 +2,87 @@
 
 import { useState } from 'react';
 
-// Mock data for users - In a real app, this would be fetched from an API
-const mockUsers = [
-  { id: 1, name: '김철수', email: 'chulsoo.kim@example.com', userType: 'owner', status: 'active', joinedDate: '2023-01-15' },
-  { id: 2, name: '박영희', email: 'younghee.park@example.com', userType: 'buyer', status: 'active', joinedDate: '2023-02-20' },
-  { id: 3, name: '이중개', email: 'agent.lee@example.com', userType: 'agent', status: 'suspended', joinedDate: '2023-03-10' },
-  { id: 4, name: '최임차', email: 'tenant.choi@example.com', userType: 'buyer', status: 'pending', joinedDate: '2023-04-05' },
-  { id: 5, name: '정소유', email: 'owner.jung@example.com', userType: 'owner', status: 'active', joinedDate: '2023-05-21' },
+// 💡 임시 회원 데이터.
+const initialUsers = [
+  { id: 'u001', name: '김철수', email: 'chulsoo.kim@example.com', joinDate: '2024-05-15', status: '활성' },
+  { id: 'u002', name: '이영희', email: 'younghee.lee@example.com', joinDate: '2024-05-12', status: '활성' },
+  { id: 'u003', name: '박지성', email: 'jisung.park@example.com', joinDate: '2024-04-28', status: '정지' },
+  { id: 'u004', name: '최민호', email: 'minho.choi@example.com', joinDate: '2024-03-10', status: '활성' },
+  { id: 'u005', name: '정수빈', email: 'soobin.jung@example.com', joinDate: '2024-02-20', status: '탈퇴' },
 ];
 
-const UserStatusBadge = ({ status }: { status: string }) => {
-  const baseClasses = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full";
-  if (status === 'active') return <span className={`${baseClasses} bg-green-100 text-green-800`}>활성</span>;
-  if (status === 'suspended') return <span className={`${baseClasses} bg-red-100 text-red-800`}>정지</span>;
-  return <span className={`${baseClasses} bg-yellow-100 text-yellow-800`}>대기</span>;
+// 사용자 상태에 따른 뱃지 스타일
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case '활성': return <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">{status}</span>;
+    case '정지': return <span className="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">{status}</span>;
+    case '탈퇴': return <span className="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">{status}</span>;
+    default: return <span className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">{status}</span>;
+  }
 };
 
-export default function AdminUsersPage() {
-  const [users, setUsers] = useState(mockUsers);
-  const [searchTerm, setSearchTerm] = useState('');
+const AdminUsersPage = () => {
+  const [users, setUsers] = useState(initialUsers);
 
-  const handleStatusChange = (userId: number, newStatus: string) => {
-    setUsers(users.map(user => user.id === userId ? { ...user, status: newStatus } : user));
+  // 사용자 상태 변경 핸들러 (예: 활성 <-> 정지)
+  const handleToggleStatus = (userId: string) => {
+    if (confirm('해당 유저의 상태를 변경하시겠습니까?')) {
+      setUsers(currentUsers =>
+        currentUsers.map(user =>
+          user.id === userId ? { ...user, status: user.status === '활성' ? '정지' : '활성' } : user
+        ).filter(user => user.status !== '탈퇴') // 탈퇴한 유저는 상태 변경 불가
+      );
+    }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 사용자 삭제 핸들러
+  const handleDeleteUser = (userId: string, userName: string) => {
+    if (confirm(`정말로 '${userName}'님을 삭제하시겠습니까? 데이터는 복구할 수 없습니다.`)) {
+      setUsers(currentUsers => currentUsers.filter(user => user.id !== userId));
+    }
+  };
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">사용자 관리</h1>
-      
-      <div className="mb-4">
-        <input 
-          type="text"
-          placeholder="이름 또는 이메일로 검색..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="w-full md:w-1/3 px-4 py-2 border rounded-lg"
-        />
-      </div>
-
+      <h1 className="text-2xl font-bold mb-6">회원 관리</h1>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">유형</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredUsers.map(user => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                  <div className="text-sm text-gray-500">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{user.userType}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <UserStatusBadge status={user.status} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.joinedDate}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <select 
-                    value={user.status}
-                    onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                    className="p-1 border rounded-md"
-                  >
-                    <option value="active">활성</option>
-                    <option value="suspended">정지</option>
-                    <option value="pending">대기</option>
-                  </select>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이름</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이메일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">관리</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map(user => (
+                <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.joinDate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(user.status)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    <button 
+                        onClick={() => handleToggleStatus(user.id)} 
+                        disabled={user.status === '탈퇴'}
+                        className={`font-semibold ${user.status === '활성' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'} disabled:text-gray-400 disabled:cursor-not-allowed`}>
+                      {user.status === '활성' ? '정지' : '활성'}
+                    </button>
+                    <button onClick={() => handleDeleteUser(user.id, user.name)} className="font-semibold text-red-600 hover:text-red-900">
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default AdminUsersPage;

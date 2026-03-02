@@ -4,10 +4,10 @@ const { getAuth } = require('firebase-admin/auth');
 
 // IMPORTANT: Path to your service account key file
 // Download this from your Firebase project settings
-const serviceAccount = require('../serviceAccountKey.json');
+// const serviceAccount = require('../serviceAccountKey.json');
 
 initializeApp({
-  credential: cert(serviceAccount),
+  // credential: cert(serviceAccount),
 });
 
 const auth = getAuth();
